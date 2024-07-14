@@ -1,17 +1,15 @@
-CC = gcc
-CXX = g++
-LD = ld
-AR = ar
-AS = as
+CXX = clang++
 
 INC = -I./include -I./vendors
 LIB =  -L. -L/usr/lib64 -L/usr/local/lib64
 
-CFLAGS = -march=native -O3 -pg -Wall -Wextra -pedantic $(INC)
+CFLAGS = -march=native -O3 -flto -fno-sanitize=all -Wall -Wextra -pedantic $(INC)
 CXXFLAGS = -std=c++20 $(CFLAGS)
 LDFLAGS = $(LIB) -O3
 
-# Math
+BENCHMARK = `pkg-config --cflags --libs benchmark`
+
+# Rules for creating object files
 matrix4x4.o:
 	${CXX} ${CXXFLAGS} -c src/matrix4x4.cpp -o $@
 
@@ -24,19 +22,11 @@ vec2.o:
 vec3.o:
 	${CXX} ${CXXFLAGS} -c src/vec3.cpp -o $@
 
-math.o: matrix4x4.o quaternion.o vec2.o vec3.o
-	${LD} -r $^ -o $@
+MATH = matrix4x4.o quaternion.o vec2.o vec3.o
 
-#########################################################################################
-
-# Mathematics Benchmarking
-#########################################################################################
-
-math-benchmark.o:
-	${CXX} ${CXXFLAGS} -c builds/benchmark/math_benchmark.cpp -o $@
-
-math-benchmark: math.o math-benchmark.o
-	${CXX} ${CXXFLAGS} -lbenchmark $^ -o $@
+# Rule for creating the benchmark executable
+math-benchmark: ${MATH}
+	${CXX} ${CXXFLAGS} builds/benchmark/math_benchmark.cpp $^ ${BENCHMARK} -o $@
 
 all: math-benchmark
 

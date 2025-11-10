@@ -7,7 +7,7 @@ AS = as
 INC = -I./include -I./vendors
 LIB =  -L. -L/usr/lib64 -L/usr/local/lib64
 
-CFLAGS = -march=native -O3 -pg -Wall -Wextra -pedantic $(INC)
+CFLAGS = -march=native -Oz -pg -Wall -Wextra -pedantic $(INC)
 CXXFLAGS = -std=c++20 $(CFLAGS)
 LDFLAGS = $(LIB) -O3
 
